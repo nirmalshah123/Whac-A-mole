@@ -1,27 +1,11 @@
+ 
 #include <at89c5131.h>
 #include "lcd.h"		//Header file with LCD interfacing functions
 #include "serial.c"	//C file with UART interfacing functions
 
-IP_1 =1;
-unsigned int count=0;
+unsigned int count=0,temp_count=0;
 unsigned char max=0,score=0;
 
-/*void delay_sec(char ch)						//Delay function to create delay in seconds
-{																	//For eg ch= 2 then this function would create a delay for 2 seconds
-	unsigned char time = 40*ch;			
-  unsigned char i;
-	for(i=0;i<time;i++)
-	{
-
-		TH0 = 0x3c;										//Setting the value to run the T1 timer for 50,000 times
-		TL0 = 0xb0;
-		TR0 = 1;
-												
-
-		
-	}
-}
-*/
 
 void score_card()
 {
@@ -42,19 +26,19 @@ void score_card()
 	
 }
 
-/*void timer_isr() interrupt 1
+void timer_isr() interrupt 1
 {
-	if(TF0 == 1)
-	{
+
 		count++;
-		TF0=0;
 		TR0 =0 ;
 		TH0 = 0x3c;										//Setting the value to run the T1 timer for 50,000 times
 		TL0 = 0xb0;
-		TR0 = 1;
-	}
-		
-}*/
+		if(count ==4000)
+		{			
+			temp_count=count;
+		}TR0 = 1;
+	
+}
 
 void init_whacamole(unsigned char start)
 {
@@ -128,9 +112,37 @@ void start(void)
 			lcd_cmd(0x01);
 			msdelay(4);
 }
+unsigned char receive_char(void)
+{
+	unsigned char ch = 0;
+/*	while(!rx_complete)				//Wait for rx_complete(interrupt to complete)
+	{
+		if(count == 200)
+		{
+			temp_count=count;
+			TR0=0;
+			SBUF = 'm';
+			break;
+		}
+	}*/
+	rx_complete = 0;
+	ch = SBUF;					//Read data from SBUF
+	return ch;					//Return read character
+}
 
-
-
+void serial_ISR(void) interrupt 4
+{
+		if(TI==1)			//check whether TI is set
+		{
+			TI = 0;			//Clear TI flag
+			tx_complete = 1;	//Set tx_complete flag indicating interrupt completion
+		}
+		else if(RI==1)			//check whether RI is set
+		{
+			RI = 0;			//Clear RI flag
+			rx_complete = 1;	//Set rx_complete flag indicating interrupt completion
+		}
+}
 
 void main()
 {		
@@ -140,24 +152,27 @@ void main()
 			char score_string[]="Score: ";
 	char max_string[]="High Score:";
 		
+		PSL=0;
+		PT0L=1;
+		
 		lcd_init();
 	uart_init();
 	transmit_string("Loading the game\r\n");
 		ET0 = 1;
-		
+				count=0;
+				TH0 = 0x3c;										//Setting the value to run the T1 timer for 50,000 times
+				TL0 = 0xb0;
+			TR0 = 1;
 		while(1)
 		{
 				init_whacamole(m_loc);
-				/*count=0;
-				TH0 = 0x3c;										//Setting the value to run the T1 timer for 50,000 times
-				TL0 = 0xb0;
-				TR0 = 1;*/
-
+			
+			if(temp_count!=4000)
+			{
 				ch = receive_char();
 				transmit_char(ch);
 			
-			if(ch!='m')
-			{
+
 				for(i=0;i<16;i++)
 			{
 				if(map[i] == ch)
@@ -174,12 +189,18 @@ void main()
 					}
 				}
 			}
-			}
+		}
 			else
 			{score_card();
+				count=0;
+				temp_count=0;
+				TH0 = 0x3c;
+				TL0 = 0xb0;
+				TR0=1;
 			}
 		
 
 	}
 		
 }
+
