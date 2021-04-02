@@ -12,6 +12,9 @@ bit tx_complete = 0,rx_complete = 0; //Bit flags for interrupts
 ***********************************************************/	
 void uart_init(void)
 {
+	PSL=0;
+	PT0L=1;
+	ET0 = 1;
 	TMOD=0x20;			//Configure Timer 1 in Mode 2
 	TH1=-13;					//Load TH1 to obtain require Baudrate (Refer Serial.pdf for calculations)
 	SCON=0x50;			//Configure UART peripheral for 8-bit data transfer 
@@ -51,7 +54,23 @@ void transmit_string(unsigned char *s)
 	Receives a character through UART. Returns a 
 	character.
 ***********************************************************/		
-
+unsigned char receive_char(void)
+{
+	unsigned char ch = 0;
+/*	while(!rx_complete)				//Wait for rx_complete(interrupt to complete)
+	{
+		if(count == 200)
+		{
+			temp_count=count;
+			TR0=0;
+			SBUF = 'm';
+			break;
+		}
+	}*/
+	rx_complete = 0;
+	ch = SBUF;					//Read data from SBUF
+	return ch;					//Return read character
+}
 
 
 /**********************************************************
@@ -62,3 +81,16 @@ void transmit_string(unsigned char *s)
 	Transmit or receive functions (defined above) monitor
 	for these flags to check if data transfer is done.
 ***********************************************************/	
+void serial_ISR(void) interrupt 4
+{
+		if(TI==1)			//check whether TI is set
+		{
+			TI = 0;			//Clear TI flag
+			tx_complete = 1;	//Set tx_complete flag indicating interrupt completion
+		}
+		else if(RI==1)			//check whether RI is set
+		{
+			RI = 0;			//Clear RI flag
+			rx_complete = 1;	//Set rx_complete flag indicating interrupt completion
+		}
+}
