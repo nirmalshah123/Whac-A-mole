@@ -46,14 +46,14 @@ void score_card()
 }
 void whacamole(unsigned char start)			//Whacamole function to print the strings "m" and "*"
 {
-	char star[]="********";
+	char star[]="********";							
 	unsigned char m_location,i;
-	if(start<=0x07)
+	if(start<=0x07)												//If the position of m is less than 7 then it's on 1st row. We need to print the string now
 	{
-		lcd_cmd(0x80);
+		lcd_cmd(0x80);											//Cursor to row 1 and column 1
 		msdelay(4);
-		m_location = 0x80 + start;
-		for(i=0x80;i<=0x87;i++)
+		m_location = 0x80 + start;					//Assigning the location of m
+		for(i=0x80;i<=0x87;i++)							//Printing the string which would contain "m" and "*"
 		{
 			if(i!=m_location)
 			{
@@ -72,9 +72,9 @@ void whacamole(unsigned char start)			//Whacamole function to print the strings 
 		lcd_write_string(star);
 	}
 	
-	else if(start>=0x08)
+	else if(start>=0x08)										//If start is greater than 8 than m is on 2nd line
 	{
-		lcd_cmd(0x80);
+		lcd_cmd(0x80);												//Printing the string star on the 1st line
 		lcd_write_string(star);
 		lcd_cmd(0xc0);
 		msdelay(4);
@@ -139,7 +139,7 @@ void start(void)												// This function would print the starting things of 
 void main()
 {		
 		unsigned char B=9;									//Initial position of m
-		unsigned char m_loc=B,i,ch,B1,temp_B1;
+		unsigned char m_loc=B,ch,B1,temp_B1;
 		char map[]={'q','w','e','r','t','y','u','i','a','s','d','f','g','h','j','k'};
 		char score_string[]="Score: ";
 		char max_string[]="High Score:";
@@ -150,44 +150,37 @@ void main()
 
 		TH0 = 0x3c;										//Setting the value to run the T1 timer for 50,000 times
 		TL0 = 0xb0;
-		//start();
-		TR0=1;
+		start();											//Calling start function to print "Get Ready"
+		TR0=1;												//Starting the timer T0
 		while(1)
 		{
-				whacamole(m_loc);
+				whacamole(m_loc);					//Calling the function to print the string which would have m
 
-				if(stop!=1)
+				if(stop!=1)								//If we have not completed 10 seconds, then only accept the input from the user
 				{
-					ch = receive_char();
-					transmit_char(ch);
+					ch = receive_char();		//Recieving a character
+					transmit_char(ch);			//This line is for testing purposes, to check which character is typed or not
 			
-					for(i=0;i<16;i++)
-					{
-						if(map[m_loc] == ch)
-						{	
-							if(m_loc == i)
-							{
-								score = score + 1;
-								lcd_write_char(score + 0x30);
-								msdelay(4);
+					
+						if(map[m_loc] == ch)	//If the location in the map matches with our character then we have found correct match
+						{
+								score = score + 1;	
 								temp_B1 = (B>>3 ^ (B & 0x01))<<3;
 								B1 = temp_B1 + (B>1);
 								m_loc = (B + B1)%16;
 								B = B1;
-							}
 						}
-					}
 				}
-				else
+				else											//This is where we would run if we have completed 10 seconds
 				{	
-					TR0=0;
-					score_card();
-					count=0;
-					stop=0;
-					TH0 = 0x3c;
+					TR0=0;									//Stops the timer
+					score_card();						//Call the function score_card to display the results
+					count=0;								//Resting the value of count=0
+					stop=0;									//Reseting the value of stop=0
+					TH0 = 0x3c;							//Initialising the timer values
 					TL0 = 0xb0;
-					//start();
-					TR0=1;
+					start();								//Calling the start functiob
+					TR0=1;									//Starting the timer
 				}
 		}		
 }
