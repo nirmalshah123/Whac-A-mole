@@ -138,7 +138,7 @@ void start(void)												// This function would print the starting things of 
 
 void main()
 {		
-		unsigned char B=9;									//Initial position of m
+		unsigned char B=2;									//Initial position of m
 		unsigned char m_loc=B,ch,B1,temp_B1;
 		char map[]={'q','w','e','r','t','y','u','i','a','s','d','f','g','h','j','k'};
 		char score_string[]="Score: ";
@@ -164,11 +164,11 @@ void main()
 					
 						if(map[m_loc] == ch)	//If the location in the map matches with our character then we have found correct match
 						{
-								score = score + 1;	
-								temp_B1 = (B>>3 ^ (B & 0x01))<<3;
-								B1 = temp_B1 + (B>1);
-								m_loc = (B + B1)%16;
-								B = B1;
+								score = score + 1;								//Adding it to our score
+								temp_B1 = (B>>3 ^ (B & 0x01))<<3;	//Calculating (b3 XOR b0,0,0,0)
+								B1 = temp_B1 + (B>>1);						//Our next state = (b3 XOR b0,b3,b2,b1)
+								m_loc = (B + B1)%16;							//Finding out the position of m_loc = (B+B1)%16
+								B = B1;														//Storing the next state 
 						}
 				}
 				else											//This is where we would run if we have completed 10 seconds
