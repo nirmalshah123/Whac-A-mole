@@ -12,10 +12,10 @@ bit tx_complete = 0,rx_complete = 0; //Bit flags for interrupts
 ***********************************************************/	
 void uart_init(void)
 {
-	PSL=0;
-	PT0L=1;
-	ET0 = 1;
-	TMOD=0x20;			//Configure Timer 1 in Mode 2
+	PSL=0;						//Setting the priority of timer interrupt =0
+	PT0L=1;						//Setting the priority of T0 intterupt  =1
+	ET0 = 1;					//Enable T0 interrupt
+	TMOD=0x21;			//Configure Timer 1 in Mode 2
 	TH1=-13;					//Load TH1 to obtain require Baudrate (Refer Serial.pdf for calculations)
 	SCON=0x50;			//Configure UART peripheral for 8-bit data transfer 
 	TR1=1;								//Start Timer 1
