@@ -102,9 +102,10 @@ void timer_isr() interrupt 1						//Timer intterput used for running the code fo
 		TR0 =0 ;														// Initialising the values of TR =0 
 		TH0 = 0x3c;													//Setting the value to run the T1 timer for 50,000 times
 		TL0 = 0xb0;							
-		if(count - 4000 ==0)								//If count = 4000 then it would have run for 10 seconds 
+		if(count - 400 ==0)								//If count = 4000 then it would have run for 10 seconds 
 		{			
 			stop = 1;													//setting stop to 1, meaning we have completed our 10 seconds
+			P3_0 = 1;
 		}
 		TR0 = 1;														//Again starting the timer
 	
