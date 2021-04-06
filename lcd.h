@@ -53,20 +53,6 @@ void msdelay(unsigned int time)
 	}
 }
 
-/**********************************************************
-  int_to_string(<integer_value>,<string_ptr>): 
-	Converts integer to string of length 5
-***********************************************************/	
-void int_to_string(unsigned int val,unsigned char *temp_str_data)
-{	
-   // char str_data[4]=0;
-		temp_str_data[0]=48+(val/10000);
-	  temp_str_data[1]=48+(val%10000/1000);
-	  temp_str_data[2]=48+((val%1000)/100);
-	  temp_str_data[3]=48+((val%100)/10);
-	  temp_str_data[4]=48+(val%10);
-   // return str_data;
-}
 
 /**********************************************************
     lcd_cmd(<char command>):
