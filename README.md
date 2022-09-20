@@ -1,5 +1,5 @@
 
-# Whackamole
+# Whac-A-mole
 ### Course project EE337
 
 A fun game inspired from the [Whack-a-mole](https://en.wikipedia.org/wiki/Whac-A-Mole) arcade game.  
